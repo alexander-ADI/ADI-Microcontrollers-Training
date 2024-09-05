@@ -1,8 +1,3 @@
----
-created: 2024.08.06_13:06
-tags:
-  - adi/micros-training
----
 # ADI Microcontrollers Training
 
 - [Day 0: Prerequisites](#Day%200%20C%20Programming%20&%20Microcontrollers%20Overview.md)
