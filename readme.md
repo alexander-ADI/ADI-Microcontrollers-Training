@@ -539,7 +539,7 @@ int main()
 
 Admittedly, the setup using structs is longer and a bit more complex. However, structs are an upfront investment of complexity & effort, in exchange for simpler and easier code forever after. 
 
-> [!IMPORTANT] Code maintenance
+> [!IMPORTANT]
 >
 > Consider:
 > 
@@ -710,7 +710,7 @@ Opening `main.c`, every project's code will follow a similar structure:
 
 Read through the code in `main()` and verify you understand its purpose. Don't worry about how various function calls work internally; just have an idea what you expect to have happen.
 
-> [!IMPORTANT] Quiz
+> [!IMPORTANT]
 > 
 > 1. What do you expect to happen?
 > 2. What files are included? Which of these are built-in libraries?
@@ -772,7 +772,7 @@ Magic, right?
 Not exactly. Although we'll avoid diving into the intricacies of how build tasks work, we can investigate the anatomy of `build` to understand what `make` handles at a high level. In the process, we'll begin to reveal the underlying structure of MSDK and learn how it works.
 
 
-> [!IMPORTANT] Checkpoint
+> [!IMPORTANT]
 > Where could you find documentation on MSDK build tasks?
 
 ## Understanding Build
@@ -900,7 +900,8 @@ At the root level, the MSDK contains 6 folders. (Not all of these need your atte
 
 The root folder also contains `MaintenanceTool.exe`. Use this to update, reinstall, or uninstall MSDK — it's especially useful if you accidentally modify the `MaximSDK` folder and need a fresh install!
 
-> [!IMPORTANT] Review Questions
+> [!IMPORTANT]
+> 
 > 1. Can you explain what each folder is for?
 > 2. What is a board support package? Where is it located?
 > 3. What file contains the program binary for the microcontroller? Where is it located?
@@ -911,7 +912,8 @@ The root folder also contains `MaintenanceTool.exe`. Use this to update, reinsta
 ## Lab: `GPIO` Example
 We have already run one of the example projects and seen how the underlying MSDK supports this. Let's apply this new knowledge to run a more interactive example project: GPIO.
 
-> [!TIP] Steps to run any example project
+> [!TIP] 
+> **Steps to run any example project**
 > 
 > In general, every example can be explored in the following sequence:
 > 
@@ -926,7 +928,7 @@ This example is different and more complex than `Hello_World` in a few ways.
 
 First, this code contains definitions and functions prior to `main()`. As a general rule, you can skim over these and simply note the names — more useful to know that they *exist* instead of worrying about their internals.
 
-> [!NOTE] Definitions
+> [!NOTE]
 > Definitions allow programmers to `#define` text replacements for the compiler. This simplifies code — for example, by allowing you to refer to `MXC_GPIO_PORT_OUT` and `MXC_GPIO_PIN_OUT` instead of wondering _which_ of the many GPIO ports and pins you need.
 
 Secondly, this code uses structs for GPIO configuration. We haven't learned yet how MSDK uses this data type, so don't worry if this looks confusing. Skim the code and leverage the following approach in these situations:
@@ -940,7 +942,7 @@ Read everything!
 
 You should be able to understand the basic functionality & flow of the code.
 
-> [!IMPORTANT] Checkpoint
+> [!IMPORTANT]
 > Do you understand the code? What do you think it does?
 
 ### Locating Ports & Pins
@@ -1083,7 +1085,7 @@ You should have noticed
 
 At this point, you have enough understanding to activate the green LED instead of the red one, and further modify the existing code (e.g. to alternately flash red and green). Try it out!
 
-> [!IMPORTANT] Knowledge Check
+> [!IMPORTANT]
 > Where do you expect to find the LED.h & LED.c files in MSDK? (Hint: The definitions and functions relate to the _board_, not the MAX78000 itself! Knowing this, where do you expect the driver to be?)
 
 ### MXC_Delay.h
@@ -1152,7 +1154,7 @@ In fact, now is a good time to explore the `MiscDrivers` directory more fully, t
 
 There's a good chance that any demo board peripherals you want to use have drivers located in the `MiscDrivers` directory, so look here first. Even if they don't provide the exact functionality you may need, they are excellent resources to use as templates.
 
-> [!IMPORTANT] Self-Test
+> [!IMPORTANT]
 > Where can you look up the part number for a peripheral on your demo board?
 
 > [!TIP]
@@ -1168,7 +1170,7 @@ Let's add an `#include "pb.h"` to our project's `main.c` file. Now we can `Go to
 
 Try adding SW1 or SW2 functionality to your project; using the `PB.h` driver functions, this can be done in a few lines.
 
-> [!IMPORTANT] Self Test
+> [!IMPORTANT]
 > Make a program infinite-loops between a "ready" and user-activated "busy" state:
 > 
 > - Light the Green LED ("ready")
@@ -1272,7 +1274,7 @@ uint32_t* GPIO2_OUT_SET_REG = (uint32_t*)(GPIO2_BASE_ADDR + 0x1C);
 
 Without structs, we would need to look up register addresses and offsets when working with any new register! The MSDK provides typedef structs for every register in the microcontroller, so we'll make frequent use of this tool whenever we need to use physical memory addresses.
 
-> [!IMPORTANT] Knowledge Check
+> [!IMPORTANT]
 > Try using the above methods to set bit 0! They will both work in lieu of the `LED_Off()` function (recall that MAX78000FTHR LEDs are active-low) for `LED_RED`.
 > 
 > Which bit mask would you need to store in this register to turn off the Green or Blue LEDs? 
@@ -1309,7 +1311,7 @@ Finally, notice that everything from MSDK (e.g. `#define`, struct, enum, functio
 
 In order to see how to use GPIO from the Peripheral API, let's aim to configure a single GPIO output to the Blue LED (`P2.2`).
 
-> [!NOTE] Steps for using peripherals
+> [!NOTE]
 > 
 > Most peripherals, including GPIO, require a developer to perform the following tasks in order:
 > 
