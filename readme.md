@@ -1,3 +1,8 @@
+---
+created: 2024.08.06_13:06
+tags:
+  - adi/micros-training
+---
 # ADI Microcontrollers Training
 
 - [Day 0: Prerequisites](#Day%200%20C%20Programming%20&%20Microcontrollers%20Overview.md)
@@ -55,7 +60,7 @@ Download and complete this [C Prerequisite Check](C_Prerequisite_Assignment.c).
 
 Use an [online C compiler](https://www.onlinegdb.com/online_c_compiler) or [install the minGW-w64 toolchain for GCC](https://code.visualstudio.com/docs/cpp/config-mingw).
 
-> [!warning]
+> [!WARNING]
 > Use the MinGW64 backend instead of UCRT64 for your C runtime. To do this, follow all steps as in Microsoft's guide, except change the following command to read:
 > 
 >     pacman -S --needed base-devel mingw-w64-x86_64-toolchain
@@ -80,7 +85,7 @@ Do not tolerate compiler warnings!
 - Fix warnings when they occur
 - Most errors in submitted code were flagged by the compiler!
 
-> [!tip]
+> [!TIP]
 > This section is long because it aims to address each part of the C assignment, and common errors that students may make. Feel free to skim the parts which are relevant to your performance on this task, or [skip ahead](#Slides%20Microcontrollers%20Overview) if you completed the file without issue.
 
 ### Data Types
@@ -364,7 +369,7 @@ Standard practice in MSDK is to place `main()` at the bottom of the file.
 
 ### Typedefs
 
-> [!tip] 
+> [!TIP] 
 > This section is (also) long, on purpose. If you don't know structs or enums, here is where to learn them!
 > 
 > On the other hand, feel free to skip ahead to the [Microcontrollers Overview](#Microcontrollers%20Overview) section if structs & enums are already known.
@@ -534,7 +539,7 @@ int main()
 
 Admittedly, the setup using structs is longer and a bit more complex. However, structs are an upfront investment of complexity & effort, in exchange for simpler and easier code forever after. 
 
-> [!important] Code maintenance
+> [!IMPORTANT] Code maintenance
 >
 > Consider:
 > 
@@ -705,7 +710,7 @@ Opening `main.c`, every project's code will follow a similar structure:
 
 Read through the code in `main()` and verify you understand its purpose. Don't worry about how various function calls work internally; just have an idea what you expect to have happen.
 
-> [!important] Quiz
+> [!IMPORTANT] Quiz
 > 
 > 1. What do you expect to happen?
 > 2. What files are included? Which of these are built-in libraries?
@@ -767,7 +772,7 @@ Magic, right?
 Not exactly. Although we'll avoid diving into the intricacies of how build tasks work, we can investigate the anatomy of `build` to understand what `make` handles at a high level. In the process, we'll begin to reveal the underlying structure of MSDK and learn how it works.
 
 
-> [!question] Checkpoint
+> [!IMPORTANT] Checkpoint
 > Where could you find documentation on MSDK build tasks?
 
 ## Understanding Build
@@ -895,7 +900,7 @@ At the root level, the MSDK contains 6 folders. (Not all of these need your atte
 
 The root folder also contains `MaintenanceTool.exe`. Use this to update, reinstall, or uninstall MSDK — it's especially useful if you accidentally modify the `MaximSDK` folder and need a fresh install!
 
-> [!question] Review Questions
+> [!IMPORTANT] Review Questions
 > 1. Can you explain what each folder is for?
 > 2. What is a board support package? Where is it located?
 > 3. What file contains the program binary for the microcontroller? Where is it located?
@@ -906,7 +911,7 @@ The root folder also contains `MaintenanceTool.exe`. Use this to update, reinsta
 ## Lab: `GPIO` Example
 We have already run one of the example projects and seen how the underlying MSDK supports this. Let's apply this new knowledge to run a more interactive example project: GPIO.
 
-> [!tip] Steps to run any example project
+> [!TIP] Steps to run any example project
 > 
 > In general, every example can be explored in the following sequence:
 > 
@@ -921,7 +926,7 @@ This example is different and more complex than `Hello_World` in a few ways.
 
 First, this code contains definitions and functions prior to `main()`. As a general rule, you can skim over these and simply note the names — more useful to know that they *exist* instead of worrying about their internals.
 
-> [!note] Definitions
+> [!NOTE] Definitions
 > Definitions allow programmers to `#define` text replacements for the compiler. This simplifies code — for example, by allowing you to refer to `MXC_GPIO_PORT_OUT` and `MXC_GPIO_PIN_OUT` instead of wondering _which_ of the many GPIO ports and pins you need.
 
 Secondly, this code uses structs for GPIO configuration. We haven't learned yet how MSDK uses this data type, so don't worry if this looks confusing. Skim the code and leverage the following approach in these situations:
@@ -935,7 +940,7 @@ Read everything!
 
 You should be able to understand the basic functionality & flow of the code.
 
-> [!question] Checkpoint
+> [!IMPORTANT] Checkpoint
 > Do you understand the code? What do you think it does?
 
 ### Locating Ports & Pins
@@ -965,7 +970,7 @@ Only the ports/pins shown on the headers are broken out; all other pins are eith
 
 Press SW2 to make the LED light up. You can also connect an oscilloscope or multimeter to SDIO3 to see it toggle as your press SW1.
 
-> [!caution]
+> [!CAUTION]
 > Kill power to your microcontroller whenever altering any physical connections. A single short circuit can break your board!
 
 Always consider checking the `Examples` folder when exploring new functionality! These projects quickly get you to a working demo that showcases how to get started, which can be very useful for tackling unfamiliar situations. 
@@ -1078,7 +1083,7 @@ You should have noticed
 
 At this point, you have enough understanding to activate the green LED instead of the red one, and further modify the existing code (e.g. to alternately flash red and green). Try it out!
 
-> [!question] Knowledge Check
+> [!IMPORTANT] Knowledge Check
 > Where do you expect to find the LED.h & LED.c files in MSDK? (Hint: The definitions and functions relate to the _board_, not the MAX78000 itself! Knowing this, where do you expect the driver to be?)
 
 ### MXC_Delay.h
@@ -1147,10 +1152,10 @@ In fact, now is a good time to explore the `MiscDrivers` directory more fully, t
 
 There's a good chance that any demo board peripherals you want to use have drivers located in the `MiscDrivers` directory, so look here first. Even if they don't provide the exact functionality you may need, they are excellent resources to use as templates.
 
-> [!question] Self-Test
+> [!IMPORTANT] Self-Test
 > Where can you look up the part number for a peripheral on your demo board?
 
-> [!tip]
+> [!TIP]
 > You can sometimes use VS Code's _IntelliSense_ (and a little intuition) to guess the right header file to include. For example, typing `#include "max` provides a tooltip which suggests available options; one of these (for the codec example above) is `max9867.h`.
 
 ### PB.h
@@ -1163,7 +1168,7 @@ Let's add an `#include "pb.h"` to our project's `main.c` file. Now we can `Go to
 
 Try adding SW1 or SW2 functionality to your project; using the `PB.h` driver functions, this can be done in a few lines.
 
-> [!question] Self Test
+> [!IMPORTANT] Self Test
 > Make a program infinite-loops between a "ready" and user-activated "busy" state:
 > 
 > - Light the Green LED ("ready")
@@ -1225,7 +1230,7 @@ int main(void)
 
 Our next task is to use the MSDK Peripheral API to replace our BSP driver calls. (After all, you won't always be working on a demo board with native hardware!) We'll examine one special use case of structs and then learn how to use the Peripheral API.
 
-> [!tip]
+> [!TIP]
 > If you need a refresher on `struct` or `enum` data types, please refer to the [Day 1 Review](#Review%20of%20C%20Prerequisite%20Assignment) of the C programming language. These higher-level data types are everywhere in the API, so you'll need to understand them well before progressing further.
 
 ## Debugging in VS Code
@@ -1267,7 +1272,7 @@ uint32_t* GPIO2_OUT_SET_REG = (uint32_t*)(GPIO2_BASE_ADDR + 0x1C);
 
 Without structs, we would need to look up register addresses and offsets when working with any new register! The MSDK provides typedef structs for every register in the microcontroller, so we'll make frequent use of this tool whenever we need to use physical memory addresses.
 
-> [!important] Knowledge Check
+> [!IMPORTANT] Knowledge Check
 > Try using the above methods to set bit 0! They will both work in lieu of the `LED_Off()` function (recall that MAX78000FTHR LEDs are active-low) for `LED_RED`.
 > 
 > Which bit mask would you need to store in this register to turn off the Green or Blue LEDs? 
@@ -1304,7 +1309,7 @@ Finally, notice that everything from MSDK (e.g. `#define`, struct, enum, functio
 
 In order to see how to use GPIO from the Peripheral API, let's aim to configure a single GPIO output to the Blue LED (`P2.2`).
 
-> [!note] Steps for using peripherals
+> [!NOTE] Steps for using peripherals
 > 
 > Most peripherals, including GPIO, require a developer to perform the following tasks in order:
 > 
@@ -1436,7 +1441,7 @@ As noted previously, MSDK provides all register structures natively, so you shou
 
 The detailed description for **mask** shows that this is a pin mask; the value is a `uint32_t` to match the 32-bit register, where each bit position sets an individual pin (0-31). 
 
-> [!tip]
+> [!TIP]
 > Sometimes, header files will have too many `#define`, `typedef`, and function prototypes to keep track of. If this happens (especially common with more "core" peripherals and function calls), try noting the _categorical groupings_ instead of each individual member.
 
 #### Usage
