@@ -1,30 +1,98 @@
 ---
-created: 2024.08.26_12:08
-tags: 
+created: 2024.08.06_13:06
+tags:
+  - adi/micros-training
 ---
-# Table of Contents
-- [Day 0 C Programming & Microcontrollers Overview](#day-0-c-programming--microcontrollers-overview)
-- [Day 1: Orientation / Setup](#day-1-orientation)
-- [Day 2: Introduction to MSDK](#day-2--introduction-to-msdk)
-	- [LED/PB Mini-Project](#pbh)
+# ADI Microcontrollers Training
 
+- [Day 0: Prerequisites](#Day%200%20C%20Programming%20&%20Microcontrollers%20Overview.md)
+- [Day 1: Orientation](#Day%201%20Orientation)
+	- [Day 1 - Labs](#Lab%20Flash%20&%20Run%20"Hello%20World")
+- [Day 2:  Introduction to MSDK](#Day%202%20Introduction%20to%20MSDK)
+	- [Lab: `GPIO` Example](#Lab%20`GPIO`%20Example)
+	- [Lab: Documentation Hunt](#Lab%20Documentation%20Hunt)
+- [Day 3: Using the Peripheral API (GPIO)](#Day%203)
+	- [Lab: Accessing Memory with Structs](#Lab%20Accessing%20Memory%20with%20Structs)
+	- [Lab: Working With A Peripheral (via API)](#Lab%20Working%20With%20A%20Peripheral%20(via%20API))
+- [Day 4: Additional Peripherals (SPI)](#Day%204%20Additional%20Peripherals%20(ADC,%20SPI))
+	- [Lab: SPI](#SPI)
+- [Day 5: Under the Hood + Next Steps](#Day%205%20Under%20the%20Hood%20+%20Next%20Steps)
 
-# Day 0: C Programming & Microcontrollers Overview
+---
 
-## C Programming Benchmark
-Do this  [[2024.08 C prerequisite check|C prerequisite benchmark >>]]
+# Day 0: Course Preparation
 
-### Notes
+To be completed prior to course start.
 
-Test your code! 
-- I left everything commented out so that you could compile & run as you go.
+- [ ] Order [required hardware kits](#Required%20Hardware)
+- [ ] Install & configure your [software environment](#Software%20Environment%20Setup)
+- [ ] Complete this [C Prerequisite Check](C_Prerequisite_Assignment.c)
+
+## Required Hardware
+
+This course uses the following hardware:
+
+- [MAX32670EVKIT](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/max32670evkit.html) Microcontroller
+- [MAX78000FTHR](https://www.analog.com/en/resources/evaluation-hardware-and-software/evaluation-boards-kits/max78000fthr.html) Microcontroller
+- [MAX31723PMB1](https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/max31723pmb1.html) SPI Peripheral Temperature Sensor
+- 10 Female-Female Jumper Cables
+- USB-A ports or adapter
+
+Please order these asap!
+
+## Software Environment Setup
+
+Please perform the following steps to configure the MSDK toolchain & environment:
+
+1. Install the [Maxim SDK](https://analogdevicesinc.github.io/msdk/USERGUIDE/#download)
+    1. Stick to the default setup options. (You probably won't need instructions for this part... but if you like documentation, see [the MSDK user guide](https://analogdevicesinc.github.io/msdk//USERGUIDE/#setup).)
+    2. At the end of the install, a prompt will open to set up VS Code support. Ignore this / close it.
+2. Install [Visual Studio Code](https://code.visualstudio.com/)
+3. Integrate MSDK to VS Code ([follow these steps](https://analogdevicesinc.github.io/msdk//USERGUIDE/#setup-vs-code))
+    1. Verify integration by successfully building the "Hello World" project in `Examples/MAX32670` 
+4. Integrate MSDK to the command line ([follow these steps](https://analogdevicesinc.github.io/msdk//USERGUIDE/#getting-started-with-command-line-development))
+    1. This should be quick. Make sure you verify the toolchain path by running the commands [in the "Verification" section](https://analogdevicesinc.github.io/msdk//USERGUIDE/#verification).
+        1. You can compare your output to [this sample terminal output](assets/environment%20config%20sample%20terminal%20output.md).
+
+## C Prerequisite Check
+
+Download and complete this [C Prerequisite Check](C_Prerequisite_Assignment.c). 
+
+Use an [online C compiler](https://www.onlinegdb.com/online_c_compiler) or [install the minGW-w64 toolchain for GCC](https://code.visualstudio.com/docs/cpp/config-mingw).
+
+> [!warning]
+> Use the MinGW64 backend instead of UCRT64 for your C runtime. To do this, follow all steps as in Microsoft's guide, except change the following command to read:
+> 
+>     pacman -S --needed base-devel mingw-w64-x86_64-toolchain
+>     
+> Your PATH variable will change accordingly to `"C:\msys64\mingw64\bin"`
+
+---
+
+# Day 1: Orientation
+
+- [ ] Scheduling considerations for the course
+- [ ] Review C Prerequisite assignment
+- [ ] Microcontrollers Overview (Slides)
+
+## Review of C Prerequisite Assignment
+
+Test your code!
+- Compile & run as you complete code.
+- Make sure your code does what you expect. Predict its output and ensure the code agrees with your predictions. 
 
 Do not tolerate compiler warnings!
 - Fix warnings when they occur
 - Most errors in submitted code were flagged by the compiler!
 
-Useful tool: Windows Calculator (Programmer Mode)
-### Fixed-Width Types
+> [!tip]
+> This section is long because it aims to address each part of the C assignment, and common errors that students may make. Feel free to skim the parts which are relevant to your performance on this task, or [skip ahead](#Slides%20Microcontrollers%20Overview) if you completed the file without issue.
+
+### Data Types
+
+Useful tool for bit manipulations: Windows Calculator (Programmer Mode)
+
+#### Fixed-Width Types
 
 Be explicit about your data types when working with bits! (E.g. addresses, registers, bytes, etc.)
 
@@ -40,8 +108,7 @@ Signed:
 - `int16_t`
 - `int32_t`
 
-
-### Arithmetic
+#### Arithmetic
 Floating-point vs integer division:
 
 ```c
@@ -52,14 +119,15 @@ divide_this / 3;         // 1
 
 // Literal double / float
 divide_this / 3.0        // 1.333
-divide_this / 3.0f       // 1.333
+divide_this / 3.0f       // 1.333 (floats use the 'f' suffix)
 
 // Cast any of the numbers to float
 float(divide_this) / 3;  // 1.333
 ```
 
+Note: Another common data type is the `unsigned long`, which is an integer of larger range than `int`. It can be written in shorthand as `UL` suffix to explicitly define the type, e.g. `#define BIT0 1UL`.
 
-### Casting
+#### Casting
 
 Note that `printf()` implicitly converts type to `double`.
 ```c
@@ -156,11 +224,29 @@ x = x & ~(0x03 << 4);   //   0x03       = 0000_0011
 
 Specifying bit "sets" (`1`) and "clears" (`0`) as a single number (e.g. `1110_0011` to set bits 7, 6, 5, 1, and 0) is called a **mask**.
 
+#### Compound Operators
+
+Just as `i++` is shorthand for `i = i + 1`, we can use compound operators for bit manipulations.
+
+```c
+// Set bit 0
+x = x | 0x01;   // Explicit
+x |= 0x01;      // Implicit
+
+// Set bit 4
+x = x | (0x01 << 4); // Explicit
+x |= (0x01 << 4);    // Implicit
+
+// Clear bit 7
+x = x & ~(0x01 << 7);  // Explicit
+x &= ~(0x01 << 7);     // Implicit
+```
 ### Arrays
 
 #### Easier Initialization
 
 Two ways to pre-initialize arrays to 0:
+
 ```c
 // Mass initializations
 int myArray[5] = {0};
@@ -192,7 +278,6 @@ char char_array1[6] = "Hello"; // Explicit array sizing — use this to make a l
 char* char_array2 = "Hello";   // Implicitly sizes the array
 ```
 
-
 ### Pointers
 
 #### Arrays as Pointers
@@ -201,7 +286,7 @@ This gives a warning:
 
 ```c
 char myVar[] = {0xAA, 0x55};
-uint8_t* myVar_ptr = &myVar;
+uint8_t* myVar_ptr = &myVar; // No! Error!
 ```
 
 `myVar` is an array, which C treats as a _pointer to_ the start of the array. For non-arrays, it would be correct to use `&` operator. With arrays, the correct way to do this is:
@@ -216,7 +301,7 @@ uint8_t* myVar_ptr = &myVar[0];
 
 The compiler warning indicates the problem, as well as how to fix it. (Don't ignore compiler warnings!)
 
-![](attachment/918bb9b1b3447811ab512eefbe47b5d5.png)
+![](assets/918bb9b1b3447811ab512eefbe47b5d5.png)
 
 #### Pointer Indexing
 
@@ -227,6 +312,10 @@ uint8_t myArray[2] = {0x00, 0x01};
 uint8_t* myPtr = myArray;  // Points to first memory address of myArray
 myPtr = myPtr + 1; // Points to 2nd element of myArray
 
+// For a memory representation:
+// myPtr = &myArray[0] = 0x2334_1F72
+// myPtr + 1 = &myArray[1] = 0x2334_1F7A
+
 // This will not work properly
 myPtr = myPtr + 8;
 ```
@@ -235,7 +324,7 @@ The only time you need to be explicit about the number of bits is when C does no
 
 ```c
 uint32_t myPtrVal = myArray;  // myPtr holds the integer value of myArray's address
-myPtrVal = myPtrVal + 32;       // myPtr holds the integer value of myArray[2]'s address
+myPtrVal = myPtrVal + 32;     // myPtr holds the integer value of myArray[2]'s address
 uint32_t* myPtr = (uint32_t*)myPtrVal;   // Cast to pointer, points to myArray[2]
 ```
 
@@ -255,7 +344,6 @@ int main()
 	printf("5 is non-zero?  %u \n", )
 }
 ```
-
 
 Instead, place functions above or below `main()`. 
 
@@ -277,63 +365,326 @@ int main()
 
 ```
 
-Standard practice in MSDK is to place `main()` at the bottom of the file:
+Standard practice in MSDK is to place `main()` at the bottom of the file.
 
+### Typedefs
 
-# Day 1: Orientation
+> [!tip] 
+> This section is (also) long, on purpose. If you don't know structs or enums, here is where to learn them!
+> 
+> On the other hand, feel free to skip ahead to the [Microcontrollers Overview](#Microcontrollers%20Overview) section if structs & enums are already known.
 
-## Scheduling
-Mon / Tues / Wed: Day 1-3
-Thurs / Fri: (Unofficial) Days 4-5
+#### Structures (Structs)
 
-RF Training will have Days 4-5 officially.
+A struct is a user-defined composite data type that holds a collection of related variables under a single group name. This is useful for organizing data which would otherwise need to be individually managed — structs can be treated like any other data type, making it easy to pass groupings of variables around a codebase and access all of the relevant data from a single place. (If you're familiar with object-oriented programming, they are analogous to objects and their class members.)
 
-## Checkpoint for Day 0 Activities
-Having done the prep and pre-lab for this series, let's ensure that everyone is set up at the same point:
+As an example, you could put all the information about a particular car into separate variables... or you could use structs to keep it all together.
 
-C Programming:
-- [x] Review C Programming Benchmark assignment
+```c
+/* As separate variables */
+char car_model_1[10] = "Camry";
+int car_year_1 = 2020;
+float car_mileage_1 = 15000.75;
 
-### Preparation for Training
-[[2024.08.12 micros setup pre-work for ncgs]]
+char car_model_2[10] = "Outback";
+int car_year_2 = 2018;
+float car_mileage_2 = 30000.45;
 
-Hardware:
-- [ ] MAX32670
-- [ ] MAX78000
-- [ ] MAX31723PMB1 Temperature Sensor
-- [ ] 6 Jumper wires
-- [ ] USB connector / adapter to demo boards
+char car_model_3[10] = "F150";
+int car_year_3 = 2021;
+float car_mileage_3 = 85423.27;
 
-Software (Environment):
-- [x] Verify Maxim PATH in MinGW (`C:/MaximSDK/Tools/MSYS2/msys.bat`)
-	- Know where to find this in Explorer!
-	- `arm-none-eabi-gcc -v`
-	- `arm-none-eabi-gdb -v`
-	- `make -v`
-	- `openocd -v`
-- [x] Build `Hello_World` in VS Code (`MaximSDK/Examples/MAXxxxxx/Hello_World`)
+// This would continue for each additional vehicle...
+
+/* Using Structs */
+// First, use a typedef to define the struct
+typedef struct
+{
+    char model[10];
+    int year;
+    float mileage;
+} vehicle_t;  // Suffix _t for typedef
+
+// Now, we can use the typedef to create new struct instances:
+vehicle_t car1 = {
+	.model = "Camry", 
+	.year = 2020, 
+	.mileage = 15000.75
+};
+	
+vehicle_t car2 = {
+	.model = "Outback", 
+	.year = 2018, 
+	.mileage = 30000.45
+};
+
+vehicle_t car3 = {.model = "F150", .year = 2021, .mileage = 85423.27};
+// This is also a valid way to initialize a struct variable.
+// It's actually the same text, just with different spacing!
+```
+
+Once a struct is defined (through a `typedef struct` statement), we can use it as many times as we want to create new instances. Accessing and modifying these members is easy using the dot (.) operator.
+
+```c
+// Reading the data member value
+printf("The first car's year is %d \n", car1.year);
+
+// Modifying a value
+car1.mileage += 2158;
+car2.mileage += 1233;
+```
+
+We can even store these struct variables as their own array, which allows us to iterate through each struct:
+```c
+vehicle_t cars[3];
+cars[0] = car1;
+cars[1] = car2;
+cars[2] = car3;
+
+// Iterate through the array to print Year and Mileage 
+printf("Years | Mileage \n");
+printf("----- | -------- \n");
+for(int i=0; i < 3; i++) 
+{
+	printf("%d, %f \n", cars[i].year, cars[i].mileage);
+}
+```
+
+Very convenient. Let's see how these structs might be used in an embedded programming scenario.
+
+#### Applying Structs to Embedded Applications
+
+Consider reading values from a 12-bit ADC. The formula to convert from samples to voltages is:
+$$\textrm{Voltage} = \frac{adc\_value}{adc\_max} * VDD$$
+Therefore, in order to convert ADC samples to voltage values, we need to store data in the following variables:
+- `adc_values`: the raw ADC values (an array of readings, each between 0x000 and 0xFFF)
+- `adc_max`: the maximum ADC value (0xFFF)
+- `adc_vdd`: the DC maximum voltage (e.g. 1.8V or 3.3V)
+
+We can compare the approaches using unstructured variables vs structs.
+
+Unstructured data:
+```c
+// Create adc variables
+uint16_t adc_data[100] = {0}; // Pre-initialize to 0.
+							 // ADC values go in this array.
+uint16_t adc_max = 0xFFF;
+float adc_vdd = 3.3;
+```
+
+Using structs:
+```c
+/* Holds data related to ADC usage.
+ *      - uint16_t data[100] = raw data values from ADC
+ *      - uint16_t max = Maximum (digital) data value
+ *      - float vdd = VDD (e.g. 1.8, 3.3, etc.) to use for ADC conversion
+ */
+typedef struct      
+{
+	uint16_t data[100];  // Raw data values
+	uint16_t max;        // Maximum (digital) data value
+	float vdd;           // VDD (e.g. 1.8, 3.3, etc.)
+} adc_t;
+
+int main()
+{
+	// Initialize adc struct
+	adc_t adc = {
+		.data = {0},  // Pre-initialize to 0.
+		.max = 0xFFF,
+		.vdd = 3.3
+	};
+}
+```
+
+Note that in all of these examples, we've had to define the typedef. However, when using the MSDK, the typedefs will often be pre-defined, so we only need to worry about writing the part inside of `main()`.
+
+To show how a struct struct can be used in a function, we'll continue from the above examples and call an imagined `getVoltageFromSamples()` function using both the unstructured and `struct` data.
+
+Unstructured:
+```c
+// Converts samples from raw ADC bit values to floating-point voltages.
+// Resulting voltage values are stored into a float array `voltage_values`
+void getVoltageFromSamples(uint16_t adc_data[], uint16_t adc_max, float adc_vdd, float* voltage_values);
+
+/* Main Program */
+int main() 
+{
+	// Assume we read data values into adc_values earlier...
+	// ...
+
+	// Convert values to voltages (no struct)
+	float voltage_values[100] = {0};
+	getVoltageFromSamples(adc_data, adc_max, adc_vdd, voltage_values);
+}
+```
+
+Using `struct`:
+```c
+// Converts samples from raw ADC bit values to floating-point voltages.
+// Resulting voltage values are stored into a float array `voltage_values`
+void getVoltageFromSamples(adc_t adc, float* voltage_values);
+
+/* Main Program */
+int main() 
+{
+	// Assume we read data values into adc_values earlier...
+	// ...
+	
+	// Convert values to voltages (with struct)
+	float voltage_values[100] = {0};
+	getVoltageFromSamples(adc, voltage_values);
+}
+```
+
+Admittedly, the setup using structs is longer and a bit more complex. However, structs are an upfront investment of complexity & effort, in exchange for simpler and easier code forever after. 
+
+> [!important] Code maintenance
+>
+> Consider:
+> 
+> - What code would need to change if the function were expanded to include an `offset` variable or a `polarity` bit?
+> - What if the order of parameters changes in the function definition?
+
+#### Accessing Struct Data
+
+You may see structs declared & initialized in two different ways. Both achieve the same result, but sometimes one way may be preferable. 
+
+Referencing the `adc_t` typedef from before, we have:
+
+```c
+// Separate declaration and initialization
+adc_t adc_1;
+adc.data = {0};
+adc.max = 0xFFF;
+adc.vdd = 3.3;
+
+// Combining declaration + initialization
+adc_t adc_2 = {.data = {0}, .max = 0xFFF, .vdd = 1.8};
+```
+
+You may also see the "arrow" (`->`) operator occasionally — you can think of this as roughly equivalent to the "dot" operator, except it's used for accessing struct members via a _pointer to_ the struct.
+```c
+// We can make a pointer to the adc struct
+adc_t* adc_ptr = &adc;
+
+// These are the same:
+adc.max = 0xFFF;
+adc_ptr->max = 0xFFF;
+```
+
+#### Enumerations (Enums)
+
+An `enum` is a data type which takes on a single integer value from an enumerated set of possible values. In its definition, it looks similar to a `struct`; however, whereas structs contain many data members, an `enum` is functionally equivalent to an integer. 
+
+Once defined, enums look similar to constants in their usage; however, they offer a few advantages. As an example, consider a `typedef enum` for setting LED color based on bit positions, and a function which sets the corresponding LED:
+
+```c
+/* Typedef */
+
+// Define an led_t enum
+typedef enum {
+    LED_RED = 0x01,    // Red   = Bit 0: 001
+    LED_GREEN = 0x02,  // Green = Bit 1: 010
+    LED_BLUE = 0x04    // Blue  = Bit 2: 100
+} led_t;
+
+/* Prototypes */
+
+// Turns on a red/green/blue LED based on bit position.
+// Assume this is defined elsewhere.
+void LED_On(led_t led);
+
+int main() 
+{
+    // We can make an enum variable for this LED value
+    led_t ledValue = LED_RED; // ledValue = 0x01
+    
+    // But we can also pass the raw enum value as arguments
+    // No variable required
+    LED_On(LED_RED);  // LED_RED = 0x01
+}
+```
+
+You might wonder why we can't simply use `#define` statements for this. 
+
+Actually, we can! However, the `enum` makes it easy to logically define a set of valid values that a variable might take on. This becomes especially powerful as a form of self-explanatory and self-documenting code; for example, consider the following `enum` definition:
+
+```c
+/* Typedef */
+typedef enum 
+{
+    GPIO_PAD_NONE = 0, /**< No pull-up or pull-down */
+    GPIO_PAD_PULL_UP = 1, /**< Set pad to strong pull-up */
+    GPIO_PAD_PULL_DOWN = 2, /**< Set pad to strong pull-down */
+    GPIO_PAD_WEAK_PULL_UP = 3, /**< Set pad to weak pull-up */
+    GPIO_PAD_WEAK_PULL_DOWN = 4, /**< Set pad to weak pull-down */
+} gpio_pad_t;
+```
+
+Compare the legibility of functions and code, using regular integers versus code which uses the custom enum data type.
+
+```c
+/* Function Prototypes */
+void Set_GPIO_Pad1(int pinPad);         // Unclear... 
+                                        // What are valid values?
+                                        // What does each value mean?
+void Set_GPIO_Pad2(gpio_pad_t pinPad);  // Same value, but the enum lists valid values.
+
+/* Main Program */
+main()
+{
+    Set_GPIO_Pad1(1);                // What does this do?
+    Set_GPIO_Pad2(GPIO_PAD_PULL_UP); // Same function call, but the code explains itself.
+}
+```
+
+Finally, note that many enums are defined to avoid explicitly setting values, for convenience. In this case, each entry increments from 0; for example, the following code is completely valid and works the same as the enum above: 
+
+```c
+typedef enum {
+    MXC_GPIO_PAD_NONE,            // = 0
+    MXC_GPIO_PAD_PULL_UP,         // = 1
+    MXC_GPIO_PAD_PULL_DOWN,       // = 2
+    MXC_GPIO_PAD_WEAK_PULL_UP,    // = 3
+    MXC_GPIO_PAD_WEAK_PULL_DOWN,  // = 4
+} mxc_gpio_pad_t;
+```
+
+## Microcontrollers Overview
+
+Please see the provided PPT slides for this section:
+
+- Microcontroller Theory of Operation
+- System Architecture
+- Memory Maps & Registers
+- ADI's MAXIM Microcontrollers
+
+## Lab: Flash & Run "Hello World"
+
+Follow the instructions in the MSDK User Guide to [build and run your first project in VS Code](https://analogdevicesinc.github.io/msdk//USERGUIDE/#building-and-running-a-project-vs-code).
+
+- [ ] Build `Hello_World` in VS Code (`MaximSDK/Examples/MAXxxxxx/Hello_World`)
 	- Check `/build` directory to verify existence of these files:
 		- `HellowWorld.elf`
 		- `Hello_World.map`
-		- `*.d` (dependency) files
 		- `*.o` (object) files
 
-## Slides: Microcontrollers Overview
-- Registers
-- Architecture
-- ADI's MAXIM Microcontrollers
+## Lab: Finish C Prerequisite Check
 
-## Lab
-- Solder headers
-- Report any issues
+If you struggled to complete the prerequisite check, please fix any incomplete or incorrect sections and resubmit it during this lab session.
+
+## Lab: Solder Demo Board Headers
+
+Your evaluation board should have come with a set of headers. Solder these onto the board. (Note: The black plastic part goes _on top_ of the board, not underneath.)
+
+Please report any issues completing either of the above labs.
+
+---
 
 # Day 2:  Introduction to MSDK
 
-## Running Code on a Microcontroller: Hello World!
-
-Our first task will be to open a basic "Hello World" example and inspect the project; then, we'll walk through the entire build process to flash `Hello_World` onto the MAX78000FTHR board.
-
-### Hello_World in VS Code
+## Hello World
 
 Open the MAX78000 Example `Hello_World` in VS Code.
 
@@ -350,7 +701,7 @@ Every example project folder has the following files & folders which you should 
 
 Opening `main.c`, every project's code will follow a similar structure:
 
-1. Boilerplate legal stuff
+1. Legal stuff
 2. Filename, `@brief` description and further `@details`. Read this.
 3. Definitions
 4. Globals
@@ -359,7 +710,8 @@ Opening `main.c`, every project's code will follow a similar structure:
 
 Read through the code in `main()` and verify you understand its purpose. Don't worry about how various function calls work internally; just have an idea what you expect to have happen.
 
-> [!question] Checkpoint
+> [!important] Quiz
+> 
 > 1. What do you expect to happen?
 > 2. What files are included? Which of these are built-in libraries?
 
@@ -398,11 +750,12 @@ We can target the FTHR board instead by modifying the `board` field:
 3. Save -> `Ctrl+Shift+P` -> `Developer: Reload Window`
 
 From the MSDK User Guide:
+
 > The first task when opening or creating any project is to ensure the BSP is set correctly.
 
 If your project compiles and flashes properly, but does not respond as you expect, be sure to check that the BSP targets your platform.
 
-#### Build, Flash, and Run
+#### Revisiting "Build, Flash, and Run"
 
 1. Plug in the MAX78000FTHR to your computer.
 3. Clean the project (`Terminal (Ctrl+Shift+B)` -> `Run Build Task` -> `clean`)
@@ -412,7 +765,7 @@ If your project compiles and flashes properly, but does not respond as you expec
 
 The MAX78000 will run "Hello World", which outputs an incrementing `count` value over the serial port. In order to view this output, install the [Serial Monitor](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-serial-monitor) extension. Change the `Port` to the MAX78000 (usually `COMn` — try multiple if you don't know which one) and click `Start Monitoring` to see the microcontroller's serial output.
 
-> ![](attachment/c2dfee279fdbae4d8fbcad733bc07269.png)
+> ![](assets/c2dfee279fdbae4d8fbcad733bc07269.png)
 
 Magic, right?
 
@@ -422,7 +775,7 @@ Not exactly. Although we'll avoid diving into the intricacies of how build tasks
 > [!question] Checkpoint
 > Where could you find documentation on MSDK build tasks?
 
-### Understanding Build
+## Understanding Build
 The `build` task invokes the following command:
 
 > `Executing task: make -r -j 8 --output-sync=target --no-print-directory TARGET=MAX78000 BOARD=FTHR_RevA MAXIM_PATH=C:/MaximSDK MAKE=make PROJECT=Hello_World`
@@ -518,7 +871,7 @@ The final output from the `build` command hints at the underlying ARM toolchain 
 
 > `arm-none-eabi-size --format=berkeley /c/MaximSDK/Examples/MAX78000/Hello_World/build/Hello_World.elf`
 
-The specific `arm-none-eabi-size` command is not particularly important (it outputs the size of the `Hello_World.elf` file); however, it is important to recognize the structure of `arm-none-eabi` for its usage throughout MSDK.
+The specific `arm-none-eabi-size` command is not particularly important for our purposes (it outputs the size of the `Hello_World.elf` file, in bytes); however, it is important to recognize the structure of `arm-none-eabi` for its usage throughout MSDK.
 
 Executable files output by a compiler must be targeted for a particular instruction set architecture (ISA). (This refers to the prescribed structure of instructions that a given processor expects — the literal meaning of 1's and 0's contained in the final program executable.) For example, we cannot expect code compiled for a laptop's x86 processor to run on an ARM Cortex M4 chip! 
 
@@ -555,26 +908,28 @@ The root folder also contains `MaintenanceTool.exe`. Use this to update, reinsta
 > 5. What is the point of the `setenv.bat` file in the root folder?
 > 6. Can you run tools directly from their `Tools` folder?
 
-## Example Project: GPIO
-We have already run one of the example projects and seen how the underlying MSDK supports this. Let's apply this new knowledge to run another simple example — find the `GPIO` example project and open the folder in VS Code.
+## Lab: `GPIO` Example
+We have already run one of the example projects and seen how the underlying MSDK supports this. Let's apply this new knowledge to run a more interactive example project: GPIO.
 
-> [!warning]
+> [!tip] Steps to run any example project
 > 
-> First step with any new project: make sure the BSP is set.
+> In general, every example can be explored in the following sequence:
 > 
-> 1. Open `.vscode/settings.json`
-> 2. Target the FTHR platform by modifying the target board:  
-> 	- `"board":"FTHR_RevA"`
-> 3. Save, then `Ctrl`+`Shift`+`P` -> `Developer: Reload Window`
+> 1. Open the folder (_not_ just the `main.c` file) in VS Code.
+> 2. Open the project's `README.md` to understand the expected setup and output.
+> 	- Hint: Use `Ctrl`+`Shift`+`V` to render Markdown in VS Code.
+> 3. Change the board support package to match your demo platform.
+> 4. Build, then flash & run!
+> 5. Examine `main.c` to understand how the program works. Read comments and `printf()` statements for context.
 
-As with "Hello World", read through the `readme` and `main.c` code. This example is different and more complex than `Hello_World` in a few ways.
+This example is different and more complex than `Hello_World` in a few ways.
 
-First, this code contains definitions and functions prior to `main()`. As a general rule, you can skim over these and simply note the names — more useful to know _that_ they exist instead of worrying about their internals.
+First, this code contains definitions and functions prior to `main()`. As a general rule, you can skim over these and simply note the names — more useful to know that they *exist* instead of worrying about their internals.
 
-> [!tip] Definitions
+> [!note] Definitions
 > Definitions allow programmers to `#define` text replacements for the compiler. This simplifies code — for example, by allowing you to refer to `MXC_GPIO_PORT_OUT` and `MXC_GPIO_PIN_OUT` instead of wondering _which_ of the many GPIO ports and pins you need.
 
-Secondly, this code uses a special data type, called a struct, for GPIO configuration. We haven't learned these yet, so don't worry if this looks confusing. Two tools will help you in these situations:
+Secondly, this code uses structs for GPIO configuration. We haven't learned yet how MSDK uses this data type, so don't worry if this looks confusing. Skim the code and leverage the following approach in these situations:
 
 1. Read all of the `printf()` outputs.
 2. Read all of the comments.
@@ -588,10 +943,9 @@ You should be able to understand the basic functionality & flow of the code.
 > [!question] Checkpoint
 > Do you understand the code? What do you think it does?
 
-### Build, Flash & Run
-As with `Hello_World`, we can build, flash, and run this project on the MAX78000. 
+### Locating Ports & Pins
 
-However, in order to observe and interact with this example fully, we need a bit more information. The Serial Monitor outputs the `printf()` lines from `main()`:
+In order to observe and interact with this example fully, we need a bit more information. The Serial Monitor outputs the `printf()` lines from `main()`:
 
 > ***** GPIO Example *****
 > 
@@ -605,7 +959,7 @@ What are these pins and how can we find them?
 Technically, each port/pin (written in the format "Px.y", as in "Port X, pin Y") can be found in the [MAX78000 datasheet](https://www.analog.com/en/products/max78000.html) and located on the IC. However, because we are dealing with the FTHR evaluation board — which is a specific board implementing the MAX78000 — we should look in the [MAX78000FTHR datasheet](https://www.analog.com/en/resources/evaluation-hardware-and-software/evaluation-boards-kits/max78000fthr.html#eb-overview). 
 
 Page 3 shows the MAX78000 header pinout:
-![](attachment/58d3b39302cc53e9586d9286bd8dd226.png)
+![](assets/58d3b39302cc53e9586d9286bd8dd226.png)
 
 (This header pinout is also listed on the card that comes with the evaluation board, and the silkscreen also has useful information — however, note that there are errors occasionally, and the online datasheet will always be the most up-to-date.)
 
@@ -613,11 +967,11 @@ Only the ports/pins shown on the headers are broken out; all other pins are eith
 - P0.2 (SW1) and P1.7 (SW2) are only accessible from the physical buttons
 - P2.0 (LED1) routes directly to the LED
 - P0.9 (SDIO3) is broken out to a header pin
- 
+
 Press SW2 to make the LED light up. You can also connect an oscilloscope or multimeter to SDIO3 to see it toggle as your press SW1.
 
-> [!tip]
-> Kill power to your microcontroller whenever altering any physical connections. A single short circuit can break your board!)
+> [!caution]
+> Kill power to your microcontroller whenever altering any physical connections. A single short circuit can break your board!
 
 Always consider checking the `Examples` folder when exploring new functionality! These projects quickly get you to a working demo that showcases how to get started, which can be very useful for tackling unfamiliar situations. 
 
@@ -656,12 +1010,10 @@ In addition to the above hardware/software distinction, there are some additiona
 - We haven't needed the **Maxim Peripheral Driver API** documentation yet; however, this provides a high-level programming interface to control microcontroller hardware using simpler function calls. The documentation will be essential for using this API effectively.
 - The **Examples** folder, as we've seen already, is the fastest way to get a working demo when exploring new functionality.
 
-
-### Documentation Hunt
+## Lab: Documentation Hunt
 The following questions pertain to the MAX78000 (and FTHR board, where applicable):
 
 [[Microcontrollers Documentation Hunt]]
-
 
 # Programming with MSDK & Peripheral APIs
 
@@ -844,7 +1196,9 @@ Here is an example of the finished project using BSP drivers; it shines the Gree
 // *****************************************************************************
 int main(void)
 {
+    // Program start with green ("ready") LED
     printf("Hello World!\n");
+    LED_On(LED_GREEN);
 
 	// Infinitely loop the program
     while (1) 
@@ -862,9 +1216,7 @@ int main(void)
             
             // Wait 3 seconds
             MXC_Delay(MXC_DELAY_MSEC(3000));
-        }
-        else
-        {
+            
             // Turn off red ("busy") LED
             LED_Off(LED1);
             // Turn on green ("ready") LED
@@ -874,4 +1226,360 @@ int main(void)
 }
 ```
 
+# Day 3: MSDK + Peripheral API
 
+Our next task is to use the MSDK Peripheral API to replace our BSP driver calls. (After all, you won't always be working on a demo board with native hardware!) We'll examine one special use case of structs and then learn how to use the Peripheral API.
+
+> [!tip]
+> If you need a refresher on `struct` or `enum` data types, please refer to the [Day 1 Review](#Review%20of%20C%20Prerequisite%20Assignment) of the C programming language. These higher-level data types are everywhere in the API, so you'll need to understand them well before progressing further.
+
+## Debugging in VS Code
+
+- [ ] Cover the debugger using "Hello World"
+
+## Lab: Accessing Memory with Structs
+
+One special use for structs — which is heavily utilized in the MSDK Peripheral API — is their ability to provide physical memory scaffolding for known addresses of data. Unlike in a computer, microcontrollers have explicitly assigned addresses dedicated to various registers. (For example, we've seen that the GPIO2 register begins at address `0x4008_0400`.) 
+
+Unfortunately, referencing specific registers within a block of memory becomes difficult when we can only refer to them by number. For example, what is the address of the Output Atomic Set register? (A: `0x4008_0400` + `0x001C` = `0x4008041C`... Imagine doing this every time you needed a register!)
+
+This question is easily circumvented by appealing to typedef structs, which are defined by the MSDK for each register in the MAX78000. For example, the typedef struct `mxc_gpio_regs_t` maps each GPIOn register name to a 32-bit register offset, as defined in the User Guide. Given a pointer to the _start_ of the GPIO address space, the struct maps every subsequent data member to its associated register address. Compare the offsets from the MSDK code to the register offsets as listed in the User Guide:
+
+![](assets/9ae99ff410f5d0948466b0a55ddea866.png)
+
+![](assets/79b8162ed4fea4dcaafce627395c10ee.png)
+
+This empowers us to make clear, simple statements in our code, such as:
+
+```c
+// Set bit 0 of the GPIO2_OUT_SET register
+MXC_GPIO2->out_set |= 0x01;
+```
+
+Again, VS Code can leverage a struct's intrinsic organization to helpfully suggest all possible data members associated with the GPIO2 port.
+
+![](assets/6153a9fde4e9dfb5cf620af175df5d5e.png)
+
+
+For comparison, here is the same code without structs:
+
+```c
+// Inconvenient way to set bit 1 of the GPIO2_OUT_SET register
+uint32_t GPIO2_BASE_ADDR = 0x40080400;
+uint32_t* GPIO2_OUT_SET_REG = (uint32_t*)(GPIO2_BASE_ADDR + 0x1C);
+*GPIO2_OUT_SET_REG |= 0x01;
+```
+
+Without structs, we would need to look up register addresses and offsets when working with any new register! The MSDK provides typedef structs for every register in the microcontroller, so we'll make frequent use of this tool whenever we need to use physical memory addresses.
+
+> [!important] Knowledge Check
+> Try using the above methods to set bit 0! They will both work in lieu of the `LED_Off()` function (recall that MAX78000FTHR LEDs are active-low) for `LED_RED`.
+> 
+> Which bit mask would you need to store in this register to turn off the Green or Blue LEDs? 
+> 
+> Try using the debugger to find these bits and verify their values.
+
+
+## Using The Peripheral API
+
+We're finally ready to explore the Peripheral API! 
+
+Unlike external peripherals enabled by the BSP (`MiscDrivers`), the Peripheral API covers peripherals internal to the MAX78000 IC, including ADCs, GPIO, I2C and SPI buses, and RTC or Timer modules.
+
+### API Documentation
+The MSDK Peripheral API documentation is located at `Documentation/[your_board].html` -> Open in your browser and click on `Peripheral API`. 
+
+![](assets/1c910cff2c13ff5d0eab1a8492c9adae.png)
+
+The page will be mostly empty; click on "Modules" to open a listing of every peripheral available in MSDK. From here, you can find each peripheral's definitions, registers, data structures, enums, and functions. 
+
+Click through each of these to familiarize yourself with the general hierarchy of the documentation. Make note of:
+
+1. **Port and Pin Definitions**: Contains mask macros specifying each GPIO port and pin
+2. **GPIO_Registers**: Every register offset, as well as macros for bitfields within each register, are listed here.
+3. **Data Structures and Enumerations**
+4. **Functions**
+
+Keep this page open because we'll be referencing it throughout the rest of the project.
+
+Finally, notice that everything from MSDK (e.g. `#define`, struct, enum, functions, etc.) follows a clear naming scheme, beginning with the prefix `MXC_`. The peripheral name follows; in the case of GPIO, the prefix becomes `MXC_GPIO_` for all subsequent data structures, enums, macros, and functions. This leads to a long, but thankfully unambiguous, naming convention. (It also makes it easy to find MSDK values in VS Code by typing `MXC_`.)
+
+
+### Lab: Working With A Peripheral (via API)
+
+In order to see how to use GPIO from the Peripheral API, let's aim to configure a single GPIO output to the Blue LED (`P2.2`).
+
+> [!note] Steps for using peripherals
+> 
+> Most peripherals, including GPIO, require a developer to perform the following tasks in order:
+> 
+> 1. `#include` the driver library (`"gpio.h"`)
+> 2. Initialize the peripheral
+> 3. Configure the peripheral
+> 4. Use the peripheral
+> 	1. If a part's operation takes time, this may require separate `Start()` / `Stop()` / `Get()` calls. (Not necessary for GPIO, but other peripherals need this.)
+> 
+> Because of this series of steps (and the many possibilities for errors), it is advisable to always implement functionality in the simplest "test" program you can manage, before adding this functionality into a larger project. 
+> 
+> Also, always read the documentation for a new peripheral. This includes the user guide, datasheet, and checking the errata for any notes involving the specified peripheral.
+> 
+> Use the `Hello_World` directory to create a new project, or copy the existing one and clear away excess functionality.
+
+Let's add the steps above to `main()`. Your program might look something like this:
+
+```c
+#include "gpio.h"   // Amongst other inclusions
+
+int main(void)
+{
+    /* Initialization */
+    
+    
+    /* Configuration */
+    
+    
+    /* Start Program */
+    printf("Hello World!\n");
+
+    while (1) 
+    {
+        // Turn on LED
+        
+        // Wait 3 seconds
+        MXC_Delay(MXC_DELAY_MSEC(3000));
+
+        // Turn off LED
+        
+        // Wait 3 seconds
+        MXC_Delay(MXC_DELAY_MSEC(3000));
+    }
+}
+
+```
+
+
+#### Initialization
+
+Most peripherals will list their first function as an `Init()` function, and GPIO is no exception, with `MXC_GPIO_Init()`. Click on the function in the docs to get its detailed description, which reveals that it initializes a GPIO port according to the `uint32_t portMask` parameter.
+
+Unfortunately, the API docs don't say what this port mask should be. When in doubt, however, avoid guessing — look at an Example or look for an `MXC_` macro (`#define`) to logically fill its place. Ideally, the names should be similar, and the variable / data types should match. 
+
+In this case, we already saw the Port and Pin mask macros at the top of the API, under the `Port and Pin Definitions` module. From the `Port Definitions` module, we have:
+
+```c
+#define MXC_GPIO_PORT2 ((uint32_t)(1UL << 2))
+```
+
+This matches the `uint32_t` data type accepted by the `Init()` function, and has the same structure as a data mask, so it seems like a good candidate. 
+
+Initialization is easy, then:
+
+```c
+/* Initialization */
+MXC_GPIO_Init(MXC_GPIO_PORT2);  // GPIO Port 2 for LEDs
+```
+
+#### Configuration
+
+Most configuration functions in MSDK have `Config()` in their name, or begin with the word `Set`. For GPIO, we are given `MXC_GPIO_Config()`, so let's use that.
+
+This function will not be as immediately simple as `Init()` to use — the argument it takes in is a pointer to a struct!
+
+```c
+MXC_GPIO_Config(const mxc_gpio_cfg_t* cfg)
+```
+
+However, we have all of the tools we need to work with this function call and its `struct*` argument.
+
+Start by clicking on the `mxc_gpio_cfg_t` struct in the API docs to see what data fields it contains.
+
+![](assets/04b26489e9aa9777a7c0537691f2ccc4.png)
+
+(You can also accomplish the same thing in VS Code by typing `mxc_gpio_cfg_t`, right-clicking, and choose `Go to Type Definition`. The comments show the same information as the Doxygen documentation!)
+
+Initialize the struct; then we can begin assigning values to each data member. I'll fill in all of the fields first, then explain each step in the process.
+
+```c
+/* Configuration */
+mxc_gpio_cfg_t led_config = {
+	.port = MXC_GPIO2, 
+	.mask = MXC_GPIO_PIN_2, 
+	.func = MXC_GPIO_FUNC_OUT,
+	.pad = MXC_GPIO_PAD_NONE, 
+	.vssel = MXC_GPIO_VSSEL_VDDIOH, 
+	.drvstr = MXC_GPIO_DRVSTR_0
+};
+MXC_GPIO_Config(&ledConfig)
+```
+
+For most parameters, you'll want to click on the data type (e.g. `mxc_gpio_pad_t`) in the documentation, to open its detailed description. Aside from the first 2 parameters (which I'll come back to), most of the arguments are `enums`, so looking at the available values will (usually) give you enough information to pick the best one.
+
+- **func**: See `enum mxc_gpio_pad_t`. 
+	- Set as "Input", "Output", or "Alternate Function". Check the User Guide for an explanation of alternate function ("AF") modes.
+- **pad**: See `enum mxc_gpio_vssel_t`. 
+	- Enable pull-ups, pull-downs, or "none". (Check the datasheet for pull-up/down strengths.)
+- **vssel**: See `enum mxc_gpio_vssel_t`.
+	- Set pin voltage rail to use VDDIO or VDDIOH. (Check the datasheet for these values.)
+	- Considerations: The "Abs Max" spec for GPIO ports depends on `vssel`. I use VDDIOH to avoid exceeding this spec.
+- **drvstr**: See `enum mxc_gpio_vssel_t.
+	- Set drive strength. (See datasheet EC table.)
+
+**Port**: and **mask** refer to the port/pin pair — in this case, `P2.2`. 
+
+**Port** is perhaps the trickiest parameter to figure out how to supply — largely because the required MSDK struct `mxc_gpio_regs_t* MXC_GPIO2` is defined in the `CMSIS` library (and is therefore beyond the scope of the MSDK API documentation). Looking to the GPIO Example provided this solution and revealed the existence of this value.
+
+Perhaps confusingly, the `mxc_gpio_regs_t*` type _seems_ like it might be a struct we could initialize ourselves — after all, we're doing the same thing with `mxc_gpio_cfg_t`. However, unlike other structs which specify configuration settings, `mxc_gpio_regs_t*` maps an entire _register_. From the CMSIS library's `max78000.h`:
+
+```c
+#define MXC_BASE_GPIO2 ((uint32_t)0x40080400UL)
+#define MXC_GPIO2 ((mxc_gpio_regs_t *)MXC_BASE_GPIO2)
+```
+
+In fact, this is the same `struct`  we saw in the "Typedef Scaffolding" section! Instead of holding data members which we initialize directly, `MXC_GPIOn` uses the `typedef` as a scaffold to map the physical memory at the provided base address (`0x4008_0400`). (Another hint exists in the fact that `MXC_GPIO2` is of type `(mxc_gpio_regs_t*)`, so it matches the value needed by the `mxc_gpio_cfg_t` struct.)
+
+As noted previously, MSDK provides all register structures natively, so you should always look for a macro. 
+
+The detailed description for **mask** shows that this is a pin mask; the value is a `uint32_t` to match the 32-bit register, where each bit position sets an individual pin (0-31). 
+
+> [!tip]
+> Sometimes, header files will have too many `#define`, `typedef`, and function prototypes to keep track of. If this happens (especially common with more "core" peripherals and function calls), try noting the _categorical groupings_ instead of each individual member.
+
+#### Usage
+
+With the GPIO port initialized and configured for LED output, we are ready to replace `LED_On/Off()` functions with `GPIO` calls. This is as simple as:
+
+```c
+// Replace LED_On(LED_BLUE) with:
+MXC_GPIO_OutClr(MXC_GPIO2, MXC_GPIO_PIN_2);
+
+// Replace LED_Off(LED_BLUE) with:
+MXC_GPIO_OutSet(MXC_GPIO2, MXC_GPIO_PIN_2);
+```
+
+Consider expanding GPIO usage to configure additional pins; for example, try replacing your pushbutton BSP calls with GPIO queries to the `SWn` pin, or to a separate header pin.
+
+- Note \#1: Each switch (`SW1`, `SW2`) connects to its GPIO pin through a debounce IC. Exposed headers lack this debounce, so you will need to implement this yourself. Consider using delays and using a `previousValue` to compare to the pin's `presentValue`.
+- Note \#2: Avoid using the QSPI0 (`P0_7`, `P0_5`, `P0_6`, etc.) pins as external GPIO headers. If you check the schematic, you'll find that these pins have a pull-up resistor due to their connection to the SD reader. One "known good" pin to use is `P2_6` or `P2_7`.
+
+#### Keeping Code Legible
+
+As you develop your project, try replacing "magic number" references with your own `#define` and `typedef enum` statements! For example:
+
+- Each LED pin (Red, Green, Blue) could be an enum value according to a typedef `led_pin_t`
+- Your LED Port (`MXC_GPIO_PORT_2`) might have a `#define LED_PORT`
+
+You could also replace long sections (e.g. the "Configuration" section) with function calls like `void GPIO_Config()`, to abstract away the setup of the LEDs, pushbuttons, and any additional external GPIO pins.
+
+This could look like this:
+
+```c
+/***** Definitions *****/
+
+// LED GPIO PORT PIN
+#define LED_PORT_MASK  MXC_GPIO_PORT_2
+#define LED_PORT       MXC_GPIO2
+
+/* Typedefs */
+
+// Pin mask. Specifies all colors.
+typedef enum {
+    LED_PIN_RED = 0x01,
+    LED_PIN_GREEN = 0x02,
+    LED_PIN_YELLOW = 0x03,
+    LED_PIN_BLUE = 0x04,
+    LED_PIN_PURPLE = 0x05,
+    LED_PIN_CYAN = 0x06,
+    LED_PIN_WHITE = 0x07
+} led_pin_t;
+
+/***** Globals *****/
+
+/***** Function Prototypes *****/
+
+// Configure the GPIO ports/pins for LED, Switch, and header pins (external user input)
+void GPIO_Config(led_pin_t ledColor);
+
+/**** Function Definitions ****/
+
+void GPIO_Config(led_pin_t ledColor)
+{
+    mxc_gpio_cfg_t ledConfig = {
+        .drvstr = MXC_GPIO_DRVSTR_0,      // Use lowest drive strength
+        .func = MXC_GPIO_FUNC_OUT,
+        .mask = ledColor,                 // Pin mask as color
+        .pad = MXC_GPIO_PAD_NONE,
+        .port = LED_PORT,
+        .vssel = MXC_GPIO_VSSEL_VDDIOH    // Use VDDIOH (3.3V)
+    };
+    MXC_GPIO_Config(&ledConfig);
+    
+    // More GPIO pin configurations would go here, e.g. pushbuttons etc.
+}
+
+// *****************************************************************************
+int main(void)
+{
+    /* Initialization */
+    MXC_GPIO_Init(LED_PORT_MASK);
+
+
+    /* Configuration */
+    led_pin_t ledColor = LED_PIN_PURPLE; // Enum specifies all color options!
+    GPIO_Config(ledColor);
+
+
+    /* Main Program */
+    printf("Hello World!\n");
+
+    // Loop blinking the LED
+    while (1) 
+    {
+        // Turn on LED
+        MXC_GPIO_OutClr(LED_PORT, ledColor);
+        
+        // Wait 3 seconds
+        MXC_Delay(MXC_DELAY_MSEC(3000));
+
+        // Turn off LED
+        MXC_GPIO_OutSet(LED_PORT, ledColor);
+
+        // Wait 3 seconds
+        MXC_Delay(MXC_DELAY_MSEC(3000));
+    }
+}
+```
+
+
+# Day 4: Additional Peripherals (ADC, SPI)
+
+Most of this session is hands-on. This section is for reference and is expected to come up during the session.
+
+## SPI
+
+### Errata
+
+The FTHR board labels pin P0.11 as SS0. This is wrong.
+	- The correct pin is SS1.
+
+![](assets/76f8f94e2163af1c08395b791b91606f.png)
+
+The comments (and therefore, documentation) on SPI Modes (polarity, phase) is wrong. Use this for reference:
+
+![](assets/3a3f366d8c6b92fb7ee20441d55eed5c.png)
+
+By default, the SPI peripheral is configured for a data size of 16 bits. I have no idea why, when most of what people want to do is read/write bytes. You must change this to 8 bits.
+
+SPI buffers (Tx and Rx) will always be sending / receiving data. They are simultaneous. Therefore, even if you _read_ a byte, you must provide a dummy byte to send while reading. (Not really an error, just a specific technical note.)
+
+# Day 5: Under the Hood + Next Steps
+
+Please see provided slides.
+- Compilers, Linkers, Debuggers
+- Embedded Tools 
+- Embedded Design Patterns
+	- Polling
+	- Interrupts & Callbacks
+	- DMA
+	- Low-Power Concerns
+
+This is just the beginning! Go build things!
